@@ -1,6 +1,4 @@
 import './css/styles.css';
-import { fetchCountries } from './fetchCountries.js';
-import debounce from 'lodash.debounce';
 import Notiflix from 'notiflix';
 import 'notiflix/dist/notiflix-3.2.6.min.css';
 import axios from 'axios';
@@ -8,21 +6,33 @@ import SimpleLightbox from 'simplelightbox';
 import 'simplelightbox/dist/simple-lightbox.min.css';
 
 const form = document.querySelector('#search-form');
-const newGalleryBtn = document.querySelector('.load-more');
+const increaseGalleryBtn = document.querySelector('.load-more');
 const galleryEl = document.querySelector('.gallery');
 
+form.elements.searcBtn.setAttribute('disabled', 'true');
+
 let pageNumber = 1;
+form.addEventListener('input', () =>
+  form.elements.searcBtn.removeAttribute('disabled', 'true')
+);
 
 form.addEventListener('submit', onFormBtnCreateList);
+increaseGalleryBtn.addEventListener('click', onincreaseGalleryBtn);
 
 async function onFormBtnCreateList(e) {
   e.preventDefault();
+  form.elements.searcBtn.setAttribute('disabled', 'true');
+  pageNumber = 1;
   const { value: inputValue } = e.currentTarget.elements.searchQuery;
   try {
     const imgData = await getPic(inputValue);
-    // console.log(marcupGallery(imgData.hits));
+    // console.log(imgData.hits.length);
+
+    imgArrayLenghtChek(imgData);
+
     galleryEl.innerHTML = await marcupGallery(imgData.hits);
     lightboxGallery();
+    increaseGalleryBtn.classList.remove('visually-hidden');
   } catch (error) {
     console.log(error);
   }
@@ -38,7 +48,7 @@ async function getPic(inputValue) {
       orientation: 'horizontal',
       safesearch: true,
       page: pageNumber,
-      per_page: 30,
+      per_page: 40,
     },
   });
   return response.data;
@@ -89,4 +99,34 @@ async function lightboxGallery() {
     // captionDelay: 250,
     // }
   );
+}
+
+function imgArrayLenghtChek(data) {
+  if (data.hits.length === 0) {
+    form.reset();
+    return Notiflix.Notify.failure(
+      'Sorry, there are no images matching your search query. Please try again.'
+    );
+  }
+}
+
+async function onincreaseGalleryBtn() {
+  increaseGalleryBtn.classList.add('visually-hidden');
+  pageNumber += 1;
+  const { value: inputValue } = form.elements.searchQuery;
+  try {
+    const imgData = await getPic(inputValue);
+    // console.log(imgData.hits.length);
+
+    imgArrayLenghtChek(imgData);
+
+    galleryEl.insertAdjacentHTML(
+      'beforeend',
+      await marcupGallery(imgData.hits)
+    );
+    lightboxGallery();
+    increaseGalleryBtn.classList.remove('visually-hidden');
+  } catch (error) {
+    console.log(error);
+  }
 }
