@@ -5,6 +5,8 @@ import axios from 'axios';
 import SimpleLightbox from 'simplelightbox';
 import 'simplelightbox/dist/simple-lightbox.min.css';
 
+const IMG_ONPAGE = 40;
+
 const form = document.querySelector('#search-form');
 const increaseGalleryBtn = document.querySelector('.load-more');
 const galleryEl = document.querySelector('.gallery');
@@ -12,6 +14,8 @@ const galleryEl = document.querySelector('.gallery');
 form.elements.searcBtn.setAttribute('disabled', 'true');
 
 let pageNumber = 1;
+let lightbox = '';
+
 form.addEventListener('input', () =>
   form.elements.searcBtn.removeAttribute('disabled', 'true')
 );
@@ -28,10 +32,56 @@ async function onFormBtnCreateList(e) {
     const imgData = await getPic(inputValue);
     // console.log(imgData.hits.length);
 
-    imgArrayLenghtChek(imgData);
+    if (imgData.hits.length === 0) {
+      form.reset(imgData.hits.length === 0);
+      return Notiflix.Notify.failure(
+        'Sorry, there are no images matching your search query. Please try again.'
+      );
+    } else if (imgData.totalHits <= IMG_ONPAGE) {
+      totalScoreMessage(imgData);
+      galleryEl.innerHTML = await marcupGallery(imgData.hits);
+      lightboxGallery();
+      return Notiflix.Notify.failure(
+        `We're sorry, but you've reached the end of search results.`
+      );
+    }
+
+    totalScoreMessage(imgData);
 
     galleryEl.innerHTML = await marcupGallery(imgData.hits);
     lightboxGallery();
+    console.log(lightbox);
+    increaseGalleryBtn.classList.remove('visually-hidden');
+  } catch (error) {
+    console.log(error);
+  }
+}
+
+async function onincreaseGalleryBtn() {
+  increaseGalleryBtn.classList.add('visually-hidden');
+  pageNumber += 1;
+  const { value: inputValue } = form.elements.searchQuery;
+  try {
+    const imgData = await getPic(inputValue);
+    // console.log(imgData.hits.length);
+    console.log(lightbox);
+
+    if (imgData.totalHits - imgData.hits.length * pageNumber <= 0) {
+      increaseGalleryBtn.classList.add('visually-hidden');
+      galleryEl.insertAdjacentHTML(
+        'beforeend',
+        await marcupGallery(imgData.hits)
+      );
+      lightbox.refresh();
+      return Notiflix.Notify.failure(
+        `We're sorry, but you've reached the end of search results.`
+      );
+    }
+    galleryEl.insertAdjacentHTML(
+      'beforeend',
+      await marcupGallery(imgData.hits)
+    );
+    lightbox.refresh();
     increaseGalleryBtn.classList.remove('visually-hidden');
   } catch (error) {
     console.log(error);
@@ -48,14 +98,14 @@ async function getPic(inputValue) {
       orientation: 'horizontal',
       safesearch: true,
       page: pageNumber,
-      per_page: 40,
+      per_page: IMG_ONPAGE,
     },
   });
   return response.data;
 }
 
-async function marcupGallery(data) {
-  return await data
+function marcupGallery(data) {
+  return data
     .map(
       ({
         largeImageURL,
@@ -90,8 +140,8 @@ async function marcupGallery(data) {
     .join('');
 }
 
-async function lightboxGallery() {
-  return new SimpleLightbox(
+function lightboxGallery() {
+  lightbox = new SimpleLightbox(
     '.gallery a'
     // ,
     // {
@@ -101,32 +151,24 @@ async function lightboxGallery() {
   );
 }
 
-function imgArrayLenghtChek(data) {
-  if (data.hits.length === 0) {
-    form.reset();
-    return Notiflix.Notify.failure(
-      'Sorry, there are no images matching your search query. Please try again.'
-    );
-  }
-}
+// function imgEmptyArrayChek(data) {
+//   if (data.hits.length === 0) {
+//     form.reset();
+//     return Notiflix.Notify.failure(
+//       'Sorry, there are no images matching your search query. Please try again.'
+//     );
+//   }
+// }
 
-async function onincreaseGalleryBtn() {
-  increaseGalleryBtn.classList.add('visually-hidden');
-  pageNumber += 1;
-  const { value: inputValue } = form.elements.searchQuery;
-  try {
-    const imgData = await getPic(inputValue);
-    // console.log(imgData.hits.length);
+// function imgArrayLenghtChek(data) {
+//   if (data.totalHits - data.hits.length * pageNumber <= 0) {
+//     increaseGalleryBtn.classList.add('visually-hidden');
+//     return Notiflix.Notify.failure(
+//       `We're sorry, but you've reached the end of search results.`
+//     );
+//   }
+// }
 
-    imgArrayLenghtChek(imgData);
-
-    galleryEl.insertAdjacentHTML(
-      'beforeend',
-      await marcupGallery(imgData.hits)
-    );
-    lightboxGallery();
-    increaseGalleryBtn.classList.remove('visually-hidden');
-  } catch (error) {
-    console.log(error);
-  }
+function totalScoreMessage(data) {
+  Notiflix.Notify.info(`Hooray! We found ${data.totalHits} images.`);
 }
