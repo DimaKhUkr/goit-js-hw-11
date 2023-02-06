@@ -1,4 +1,4 @@
-import './css/styles.css';
+import '../css/styles.css';
 import Notiflix from 'notiflix';
 import 'notiflix/dist/notiflix-3.2.6.min.css';
 import axios from 'axios';
@@ -50,7 +50,8 @@ async function onFormBtnCreateList(e) {
 
     galleryEl.innerHTML = await marcupGallery(imgData.hits);
     lightboxGallery();
-    console.log(lightbox);
+
+    // console.log(lightbox);
     increaseGalleryBtn.classList.remove('visually-hidden');
   } catch (error) {
     console.log(error);
@@ -81,6 +82,7 @@ async function onincreaseGalleryBtn() {
       'beforeend',
       await marcupGallery(imgData.hits)
     );
+    smothScroll();
     lightbox.refresh();
     increaseGalleryBtn.classList.remove('visually-hidden');
   } catch (error) {
@@ -171,4 +173,13 @@ function lightboxGallery() {
 
 function totalScoreMessage(data) {
   Notiflix.Notify.info(`Hooray! We found ${data.totalHits} images.`);
+}
+
+function smothScroll() {
+  const { height: cardHeight } =
+    galleryEl.firstElementChild.getBoundingClientRect();
+  window.scrollBy({
+    top: cardHeight * 2.5,
+    behavior: 'smooth',
+  });
 }
