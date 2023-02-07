@@ -73,7 +73,10 @@ async function onincreaseGalleryBtn() {
     // console.log(imgData.hits.length);
     console.log(lightbox);
 
-    if (imgData.totalHits - imgData.hits.length * pageNumber <= 0) {
+    if (
+      imgData.totalHits - (imgData.hits.length * pageNumber + IMG_ONPAGE) <=
+      0
+    ) {
       increaseGalleryBtn.classList.add('visually-hidden');
       galleryEl.insertAdjacentHTML(
         'beforeend',

@@ -76,7 +76,10 @@ async function onincreaseGalleryScroll() {
     console.log(pageNumber);
     try {
       const imgData = await getPic(inputValue);
-      if (imgData.totalHits - imgData.hits.length * pageNumber <= 0) {
+      if (
+        imgData.totalHits - (imgData.hits.length * pageNumber + IMG_ONPAGE) <=
+        0
+      ) {
         increaseGalleryBtn.classList.add('visually-hidden');
         galleryEl.insertAdjacentHTML(
           'beforeend',

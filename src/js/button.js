@@ -37,7 +37,6 @@ async function onFormBtnCreateList(e) {
   try {
     const imgData = await getPic(inputValue);
     // console.log(imgData.hits.length);
-
     if (imgData.hits.length === 0) {
       form.reset(imgData.hits.length === 0);
       return Notiflix.Notify.failure(
@@ -71,8 +70,13 @@ async function onincreaseGalleryBtn() {
     const imgData = await getPic(inputValue);
     // console.log(imgData.hits.length);
     console.log(lightbox);
+    console.log(imgData.totalHits);
+    console.log(imgData.hits.length);
 
-    if (imgData.totalHits - imgData.hits.length * pageNumber <= 0) {
+    if (
+      imgData.totalHits - (imgData.hits.length * pageNumber + IMG_ONPAGE) <=
+      0
+    ) {
       increaseGalleryBtn.classList.add('visually-hidden');
       galleryEl.insertAdjacentHTML(
         'beforeend',
