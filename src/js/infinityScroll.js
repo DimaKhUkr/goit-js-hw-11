@@ -4,6 +4,7 @@ import 'notiflix/dist/notiflix-3.2.6.min.css';
 import axios from 'axios';
 import SimpleLightbox from 'simplelightbox';
 import 'simplelightbox/dist/simple-lightbox.min.css';
+import getPic from './fetch';
 
 const IMG_ONPAGE = 40;
 
@@ -35,7 +36,7 @@ async function onFormBtnCreateList(e) {
     );
   }
   try {
-    const imgData = await getPic(inputValue);
+    const imgData = await getPic(inputValue, pageNumber, IMG_ONPAGE);
     // console.log(imgData.hits.length);
 
     if (imgData.hits.length === 0) {
@@ -75,7 +76,7 @@ async function onincreaseGalleryScroll() {
     pageNumber += 1;
     console.log(pageNumber);
     try {
-      const imgData = await getPic(inputValue);
+      const imgData = await getPic(inputValue, pageNumber, IMG_ONPAGE);
       if (
         imgData.totalHits - (imgData.hits.length * pageNumber + IMG_ONPAGE) <=
         0
@@ -104,21 +105,21 @@ async function onincreaseGalleryScroll() {
   }
 }
 
-async function getPic(inputValue) {
-  const response = await axios({
-    url: 'https://pixabay.com/api/',
-    params: {
-      key: '33377492-476d22b77d4b85ba3622e340f',
-      q: `${inputValue}`,
-      image_type: 'photo',
-      orientation: 'horizontal',
-      safesearch: true,
-      page: pageNumber,
-      per_page: IMG_ONPAGE,
-    },
-  });
-  return response.data;
-}
+// async function getPic(inputValue) {
+//   const response = await axios({
+//     url: 'https://pixabay.com/api/',
+//     params: {
+//       key: '33377492-476d22b77d4b85ba3622e340f',
+//       q: `${inputValue}`,
+//       image_type: 'photo',
+//       orientation: 'horizontal',
+//       safesearch: true,
+//       page: pageNumber,
+//       per_page: IMG_ONPAGE,
+//     },
+//   });
+//   return response.data;
+// }
 
 function marcupGallery(data) {
   return data

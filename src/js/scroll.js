@@ -1,9 +1,10 @@
 import '../css/styles.css';
 import Notiflix from 'notiflix';
 import 'notiflix/dist/notiflix-3.2.6.min.css';
-import axios from 'axios';
+
 import SimpleLightbox from 'simplelightbox';
 import 'simplelightbox/dist/simple-lightbox.min.css';
+import getPic from './fetch';
 
 const IMG_ONPAGE = 40;
 
@@ -35,7 +36,7 @@ async function onFormBtnCreateList(e) {
     );
   }
   try {
-    const imgData = await getPic(inputValue);
+    const imgData = await getPic(inputValue, pageNumber, IMG_ONPAGE);
     // console.log(imgData.hits.length);
 
     if (imgData.hits.length === 0) {
@@ -69,7 +70,7 @@ async function onincreaseGalleryBtn() {
   pageNumber += 1;
   const { value: inputValue } = form.elements.searchQuery;
   try {
-    const imgData = await getPic(inputValue);
+    const imgData = await getPic(inputValue, pageNumber, IMG_ONPAGE);
     // console.log(imgData.hits.length);
     console.log(lightbox);
 
@@ -99,21 +100,21 @@ async function onincreaseGalleryBtn() {
   }
 }
 
-async function getPic(inputValue) {
-  const response = await axios({
-    url: 'https://pixabay.com/api/',
-    params: {
-      key: '33377492-476d22b77d4b85ba3622e340f',
-      q: `${inputValue}`,
-      image_type: 'photo',
-      orientation: 'horizontal',
-      safesearch: true,
-      page: pageNumber,
-      per_page: IMG_ONPAGE,
-    },
-  });
-  return response.data;
-}
+// async function getPic(inputValue) {
+//   const response = await axios({
+//     url: 'https://pixabay.com/api/',
+//     params: {
+//       key: '33377492-476d22b77d4b85ba3622e340f',
+//       q: `${inputValue}`,
+//       image_type: 'photo',
+//       orientation: 'horizontal',
+//       safesearch: true,
+//       page: pageNumber,
+//       per_page: IMG_ONPAGE,
+//     },
+//   });
+//   return response.data;
+// }
 
 function marcupGallery(data) {
   return data
@@ -187,6 +188,7 @@ function totalScoreMessage(data) {
 function smothScroll() {
   const { height: cardHeight } =
     galleryEl.firstElementChild.getBoundingClientRect();
+
   window.scrollBy({
     top: cardHeight * 2.5,
     behavior: 'smooth',
