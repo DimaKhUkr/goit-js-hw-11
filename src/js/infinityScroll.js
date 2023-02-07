@@ -28,6 +28,12 @@ async function onFormBtnCreateList(e) {
   form.elements.searcBtn.setAttribute('disabled', 'true');
   pageNumber = 1;
   inputValue = e.currentTarget.elements.searchQuery.value;
+  if (inputValue.trim().length === 0) {
+    form.reset();
+    return Notiflix.Notify.failure(
+      'Sorry, there are no images matching your search query. Please try again.'
+    );
+  }
   try {
     const imgData = await getPic(inputValue);
     // console.log(imgData.hits.length);
